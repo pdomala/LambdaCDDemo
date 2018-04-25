@@ -23,7 +23,7 @@
 				"lambda:*"
 			],
 			"Resource": [
-				"arn:aws:lambda:region:id:function:*"
+				"arn:aws:lambda:ap-southeast-2:093833860903:function:*"
 			],
 			"Effect": "Allow"
 		},
@@ -32,7 +32,7 @@
 				"apigateway:*"
 			],
 			"Resource": [
-				"arn:aws:apigateway:region::*"
+				"arn:aws:apigateway:ap-southeast-2::*"
 			],
 			"Effect": "Allow"
 		},
@@ -44,7 +44,7 @@
 				"iam:PutRolePolicy"
 			],
 			"Resource": [
-				"arn:aws:iam::id:role/*"
+				"arn:aws:iam::093833860903:role/*"
 			],
 			"Effect": "Allow"
 		},
@@ -55,7 +55,7 @@
 				"iam:DetachRolePolicy"
 			],
 			"Resource": [
-				"arn:aws:iam::id:role/*"
+				"arn:aws:iam::093833860903:role/*"
 			],
 			"Effect": "Allow"
 		},
@@ -73,7 +73,7 @@
 				"cloudformation:CreateChangeSet"
 			],
 			"Resource": [
-				"arn:aws:cloudformation:region:aws:transform/Serverless-2016-10-31"
+				"arn:aws:cloudformation:ap-southeast-2:aws:transform/Serverless-2016-10-31"
 			],
 			"Effect": "Allow"
 		},
@@ -84,7 +84,7 @@
 				"codedeploy:RegisterApplicationRevision"
 			],
 			"Resource": [
-				"arn:aws:codedeploy:region:id:application:*"
+				"arn:aws:codedeploy:ap-southeast-2:093833860903:application:*"
 			],
 			"Effect": "Allow"
 		},
@@ -95,7 +95,7 @@
 				"codedeploy:GetDeployment"
 			],
 			"Resource": [
-				"arn:aws:codedeploy:region:id:deploymentgroup:*"
+				"arn:aws:codedeploy:ap-southeast-2:093833860903:deploymentgroup:*"
 			],
 			"Effect": "Allow"
 		},
@@ -104,7 +104,7 @@
 				"codedeploy:GetDeploymentConfig"
 			],
 			"Resource": [
-				"arn:aws:codedeploy:region:id:deploymentconfig:*"
+				"arn:aws:codedeploy:ap-southeast-2:093833860903:deploymentconfig:*"
 			],
 			"Effect": "Allow"
 		}
