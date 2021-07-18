@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  AppId:
+    Description: Application Id for application
+    Type: String
+    Default: SmartRouter-LAMBDA
+  Environment:
+    Description: Environment where the App is being deployed
+    Type: String
+  S3BucketCode:
+    Description: S3 Bucket which has the code for the lambda
+    Type: String
+  apiGatewayStageName:
+    Type: String
+  CodeKey:
+    Type: String
+  LambdaSubnetID1:
+    Type: String
+  LambdaSubnetID2:
+    Type: String
+  LambdaSecurityGroupID:
+    Type: String
+Resources:
+  SmartRouterLambdaCreatePromotion:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !Sub '${S3BucketCode}'
+        S3Key: !Sub '${CodeKey}'
+      Environment:
+        Variables:
+          ASPNETCORE_ENVIRONMENT: !Sub '${Environment}'
+          env1: val1
+      FunctionName: !Sub '${AppId}-${Environment}-CreatePromotion'
+      Handler: 'SmartRouterLambda::SmartRouterLambda.PromotionHandler::CreatePromotion'
+      MemorySize: 256
+      Role: !Sub 'arn:aws:iam::549289340310:role/${AppId}-${Environment}-LambdaRole'
+      Runtime: dotnetcore2.1
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroupID
+        SubnetIds:
+          - !Ref LambdaSubnetID1
+          - !Ref LambdaSubnetID2
+      Timeout: 900
+  SmartRouterLambdaCreatePromotionInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !GetAtt 
+        - SmartRouterLambdaCreatePromotion
+        - Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: apigateway.amazonaws.com
+  PromotionsapiGateway:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      Name: !Sub '${AppId}-${Environment}-Promotions'
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+  apigatewaycreatepromotionResource:
+    Type: 'AWS::ApiGateway::Resource'
+    Properties:
+      RestApiId: !Ref PromotionsapiGateway
+      ParentId: !GetAtt 
+        - PromotionsapiGateway
+        - RootResourceId
+      PathPart: createpromotion
+  apiGatewaycreatepromotionMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: Empty
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: 'false'
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS
+        PassthroughBehavior: WHEN_NO_MATCH
+        IntegrationResponses:
+          - StatusCode: '200'
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            ResponseTemplates:
+              application/json: ''
+        Uri: !Sub >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SmartRouterLambdaCreatePromotion.Arn}/invocations
+      ResourceId: !Ref apigatewaycreatepromotionResource
+      RestApiId: !Ref PromotionsapiGateway
+    DependsOn: SmartRouterLambdaCreatePromotion
+  apiGatewaycreatepromotionOPTIONSMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: Empty
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: 'false'
+            method.response.header.Access-Control-Allow-Methods: 'false'
+            method.response.header.Access-Control-Allow-Headers: 'false'
+      Integration:
+        Type: MOCK
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: '200'
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+              method.response.header.Access-Control-Allow-Headers: >-
+                'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+            ResponseTemplates:
+              application/json: ''
+      ResourceId: !Ref apigatewaycreatepromotionResource
+      RestApiId: !Ref PromotionsapiGateway
+  apiGatewayPromotionsDeployment:
+    Type: 'AWS::ApiGateway::Deployment'
+    DependsOn:
+      - apiGatewaycreatepromotionMethod
+      - apiGatewaycreatepromotionOPTIONSMethod
+    Properties:
+      RestApiId: !Ref PromotionsapiGateway
+      StageName: !Ref apiGatewayStageName
