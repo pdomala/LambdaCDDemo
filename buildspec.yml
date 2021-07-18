@@ -2,9 +2,9 @@ version: 0.1
 phases:
   install:
     commands:
-      - aws cloudformation package --template-file samTemplate.yaml --s3-bucket pdomala-lambda-pipeline --output-template-file outputSamTemplate.yaml
+      - aws cloudformation package --template-file inputSmarRrouterCF.yaml --s3-bucket smart-router --output-template-file outputSmarRrouterCF.yaml
 artifacts:
   type: zip
   files:
-    - samTemplate.yaml
-    - outputSamTemplate.yaml
+    - inputSmarRrouterCF.yaml
+    - outputSmarRrouterCF.yaml
